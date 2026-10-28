@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Keuangan</title>
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--tx:#17211d;--mut:#5d6b65;--bd:#d9e1dd;--acc:#0b6e4f;--on:#fff;--inc:#0b6e4f;--exp:#c2603a;--neg:#b3261e}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1613;--card:#18211d;--tx:#e6eee9;--mut:#93a39b;--bd:#2a3731;--acc:#3fbf93;--on:#06231a;--inc:#3fbf93;--exp:#e8946f;--neg:#f2837c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:1.25rem;margin:0}h2{font-size:1rem;margin:0 0 10px}
+input,select,button,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+button{cursor:pointer}.pri{background:var(--acc);border-color:var(--acc);color:var(--on);font-weight:600}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+header{display:flex;gap:10px;align-items:center;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd)}header h1{flex:1}
+.pill{font-size:.8rem;padding:3px 9px;border-radius:99px;border:1px solid var(--bd);color:var(--mut)}.pill.ok{color:var(--inc);border-color:var(--inc)}.pill.err{color:var(--neg);border-color:var(--neg)}
+nav{display:flex;gap:4px;padding:8px 16px;overflow-x:auto}nav button{border:0;background:none;color:var(--mut);white-space:nowrap}nav button[aria-selected=true]{background:var(--acc);color:var(--on)}
+main{max-width:980px;margin:0 auto;padding:6px 16px 40px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px;min-width:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.sc{text-align:left;padding:12px 14px;border-radius:12px}.sc small{display:block;color:var(--mut)}.sc b{font-size:1.15rem}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}form.f *{min-width:0;width:100%}
+table{width:100%;border-collapse:collapse}td,th{padding:7px 4px;border-bottom:1px solid var(--bd);text-align:left;font-weight:400}th{color:var(--mut);font-size:.85rem}
+.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.sec td{font-weight:600;border:0;padding-top:12px}.tt td{font-weight:600;border-top:1px solid var(--tx)}.bg td{font-weight:700;border-top:2px solid var(--tx);border-bottom:2px solid var(--tx)}
+.neg{color:var(--neg)}.empty{color:var(--mut);padding:12px 0}.sw{overflow-x:auto}.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:11px}
+.lg{display:flex;gap:14px;color:var(--mut);font-size:.85rem;margin-top:6px}.lg i,.pie li i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+.pie{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.pie svg{width:170px}.pie ul{list-style:none;margin:0;padding:0;font-size:.9rem}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}#login form{width:100%;max-width:340px;display:grid;gap:10px}
+details{color:var(--mut);font-size:.9rem}textarea{width:100%;margin:8px 0}[hidden]{display:none!important}
+@media (max-width:720px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="login" hidden><form id="lf" class="card">
+  <h1>Laporan Keuangan</h1><p id="lt" style="margin:0"></p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN" aria-label="PIN">
+  <input id="pin2" type="password" inputmode="numeric" autocomplete="off" placeholder="Ulangi PIN" aria-label="Ulangi PIN" hidden>
+  <p id="le" class="neg" style="margin:0"></p><button class="pri">Lanjut</button>
+  <details><summary>Perangkat baru? Hubungkan ke cloud</summary><textarea id="lcfg" rows="5" placeholder="Tempel firebaseConfig dari Firebase Console"></textarea><button type="button" id="lcb">Hubungkan</button><p id="lce" class="neg"></p></details>
+</form></div>
+
+<div id="app" hidden>
+<header><h1 id="nm">Laporan Keuangan</h1><span id="st" class="pill">Lokal</span><button id="out">Keluar</button></header>
+<nav><button data-go="home" aria-selected="true">Beranda</button><button data-go="trx" aria-selected="false">Transaksi</button><button data-go="lap" aria-selected="false">Laporan</button><button data-go="set" aria-selected="false">Pengaturan</button></nav>
+<main>
+<section id="t-home">
+  <div class="cards" id="cards"></div>
+  <div class="card"><h2>Tren 6 bulan terakhir</h2><div id="h-ch"></div><div class="lg"><span><i style="background:var(--inc)"></i>Pendapatan</span><span><i style="background:var(--exp)"></i>Pengeluaran</span></div></div>
+  <div class="card"><h2>Transaksi terakhir</h2><div class="sw"><table id="h-last"></table></div></div>
+</section>
+
+<section id="t-trx" hidden>
+  <div class="card"><h2>Tambah transaksi</h2>
+  <form class="f" id="tf"><input type="date" id="td" required aria-label="Tanggal"><input id="tk" placeholder="Keterangan" required aria-label="Keterangan"><input id="tc" placeholder="Kategori" list="cl" required aria-label="Kategori"><select id="tt" aria-label="Tipe"><option value="p">Pendapatan</option><option value="b">Pengeluaran</option></select><input id="tj" type="number" min="1" placeholder="Jumlah (Rp)" required aria-label="Jumlah"><button class="pri">Simpan</button></form><datalist id="cl"></datalist></div>
+  <div class="card"><div class="bar"><select id="tm" aria-label="Bulan"></select><input id="tq" type="search" placeholder="Cari keterangan atau kategori" aria-label="Cari" style="flex:1"></div><div class="sw"><table id="tl"></table></div></div>
+</section>
+
+<section id="t-lap" hidden>
+  <div class="bar"><select id="lp" aria-label="Periode"></select><select id="lm" aria-label="Model grafik"><option value="bar">Grafik batang</option><option value="line">Grafik garis</option><option value="area">Grafik area</option></select><button id="ex" class="pri">Unduh Excel</button></div>
+  <div class="two"><div class="card"><h2>Laba rugi sederhana</h2><div class="sw"><table id="lr"></table></div></div>
+  <div class="card"><h2>Komposisi pengeluaran</h2><div id="pie"></div></div></div>
+  <div class="card"><h2>Tren 12 bulan</h2><div id="l-ch"></div><div class="lg"><span><i style="background:var(--inc)"></i>Pendapatan</span><span><i style="background:var(--exp)"></i>Pengeluaran</span></div></div>
+</section>
+
+<section id="t-set" hidden>
+  <div class="card"><h2>Usaha</h2><input id="sn" placeholder="Nama usaha" aria-label="Nama usaha" style="width:100%;max-width:360px"></div>
+  <div class="card"><h2>Sinkronisasi cloud (Firebase)</h2><p id="ss" style="margin-top:0;color:var(--mut)"></p>
+    <textarea id="sc" rows="6" placeholder="Tempel firebaseConfig dari Firebase Console (harus memuat apiKey dan databaseURL)" aria-label="Konfigurasi Firebase"></textarea>
+    <div class="bar"><button id="sv" class="pri">Simpan dan hubungkan</button><button id="sy">Sinkron sekarang</button></div><p id="se" class="neg"></p></div>
+  <div class="card"><h2>Ganti PIN</h2><div class="bar"><input id="np" type="password" inputmode="numeric" placeholder="PIN baru (4-8 angka)" aria-label="PIN baru"><button id="pc">Simpan PIN</button></div><p id="pe" class="neg"></p></div>
+</section>
+</main></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" async></script>
+<script>
+const ROOT="keuangan",$=i=>document.getElementById(i),BLN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+let D={trx:{},set:{},dirty:{},rev:0},cfg=null,busy=false,lastSync=0,stt=["local",""];
+const pad=n=>String(n).padStart(2,"0"),rp=n=>(n<0?"-":"")+"Rp "+Math.abs(Math.round(n)).toLocaleString("id-ID");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())},uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const lb=m=>BLN[+m.slice(5,7)-1]+" "+m.slice(2,4),list=()=>Object.values(D.trx).filter(x=>!x.del);
+/* penyimpanan lokal (IndexedDB) */
+const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("keuangan-db",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+async function dbGet(){try{const db=await idb();return await new Promise(ok=>{const q=db.transaction("kv").objectStore("kv").get("db");q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})}catch(e){return null}}
+async function persist(){try{const db=await idb();db.transaction("kv","readwrite").objectStore("kv").put(D,"db")}catch(e){}}
+/* perubahan data (ditandai dirty lalu dikirim ke cloud) */
+function touch(p){D.dirty[p]=1;persist();clearTimeout(touch.t);touch.t=setTimeout(sync,400);render()}
+const addTrx=o=>{const id=uid();D.trx[id]={id,...o,u:Date.now()};touch("trx/"+id)},delTrx=id=>{D.trx[id]={id,del:1,u:Date.now()};touch("trx/"+id)},setSet=o=>{D.set={...D.set,...o,u:Date.now()};touch("set")};
+/* PIN */
+async function hash(p,s){const t=s+p;if(crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}let h=5381;for(const c of t)h=((h<<5)+h+c.charCodeAt(0))>>>0;return"f"+h}
+/* sinkron Firebase (REST + login anonim) */
+async function tok(){let a=JSON.parse(localStorage.getItem("fbauth")||"null");const k=cfg.apiKey,save=x=>(localStorage.setItem("fbauth",JSON.stringify(x)),x.t);
+ if(a&&a.exp>Date.now()+60000)return a.t;
+ if(a&&a.r){const r=await(await fetch("https://securetoken.googleapis.com/v1/token?key="+k,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(a.r)})).json();if(r.id_token)return save({t:r.id_token,r:r.refresh_token,exp:Date.now()+ +r.expires_in*1000})}
+ const r=await(await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+k,{method:"POST",headers:{"Content-Type":"application/json"},body:'{"returnSecureToken":true}'})).json();
+ if(!r.idToken)throw new Error((r.error&&r.error.message)||"Login anonim gagal. Aktifkan Anonymous di Authentication.");
+ return save({t:r.idToken,r:r.refreshToken,exp:Date.now()+ +r.expiresIn*1000})}
+async function fb(m,p,b){const r=await fetch(cfg.databaseURL.replace(/\/$/,"")+"/"+ROOT+(p?"/"+p:"")+".json?auth="+await tok(),{method:m,body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("Server menolak (HTTP "+r.status+"). Cek Rules database.");return r.json()}
+function setSt(s,m){stt=[s,m||""];const e=$("st");e.className="pill "+(s==="ok"?"ok":s==="err"?"err":"");e.textContent={local:"Lokal saja",ok:"Tersinkron",sync:"Menyinkronkan...",off:"Offline",err:"Gagal sinkron"}[s];e.title=m||"";$("ss").textContent=cfg?(s==="ok"?"Tersinkron"+(lastSync?" pukul "+new Date(lastSync).toLocaleTimeString("id-ID"):""):stt[1]||e.textContent):"Belum terhubung. Data hanya tersimpan di perangkat ini."}
+async function sync(force){if(!cfg||busy)return;if(!navigator.onLine)return setSt("off");busy=true;setSt("sync");
+ try{const ks=Object.keys(D.dirty);let mine=0;
+  if(ks.length){const o={};ks.forEach(k=>o[k]=k==="set"?D.set:D.trx[k.slice(4)]);await fb("PATCH","",o);D.dirty={};mine=Date.now();await fb("PATCH","_meta",{rev:mine})}
+  const r=await fb("GET","_meta/rev");
+  if(force===true||(r!==D.rev&&r!==mine)){const all=await fb("GET","")||{};Object.values(all.trx||{}).forEach(x=>{const l=D.trx[x.id];if(!l||x.u>l.u)D.trx[x.id]=x});if(all.set&&(!D.set.u||all.set.u>D.set.u))D.set=all.set}
+  D.rev=r||mine||0;lastSync=Date.now();persist();setSt("ok");render()
+ }catch(e){setSt("err",e.message)}finally{busy=false}}
+function saveCfg(t){const g=k=>{const m=t.match(new RegExp(k+`["']?\\s*:\\s*["']([^"']+)["']`));return m&&m[1]};const apiKey=g("apiKey"),databaseURL=g("databaseURL");
+ if(!apiKey)return"apiKey tidak ditemukan. Salin seluruh blok firebaseConfig.";
+ if(!databaseURL)return"databaseURL tidak ditemukan. Buat Realtime Database dulu, lalu salin ulang konfigurasinya.";
+ cfg={apiKey,databaseURL};localStorage.setItem("fbcfg",JSON.stringify(cfg));localStorage.removeItem("fbauth");return""}
+/* hitung */
+const inP=(a,p)=>p==="all"?a:a.filter(x=>x.d.slice(0,7)===p),sum=(a,t)=>a.filter(x=>x.t===t).reduce((s,x)=>s+x.j,0);
+function grp(a,t){const o={};a.filter(x=>x.t===t).forEach(x=>o[x.c]=(o[x.c]||0)+x.j);return Object.entries(o).sort((x,y)=>y[1]-x[1])}
+function lastM(n){const d=new Date(),r=[];for(let i=n-1;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);r.push(x.getFullYear()+"-"+pad(x.getMonth()+1))}return r}
+const series=n=>lastM(n).map(m=>{const a=inP(list(),m);return{m,p:sum(a,"p"),b:sum(a,"b")}});
+/* grafik */
+function chart(ms,model){const W=600,H=220,T=10,B=26,hi=Math.max(1,...ms.flatMap(x=>[x.p,x.b])),sc=v=>T+(H-T-B)*(1-v/hi),gw=(W-16)/ms.length,cx=i=>8+gw*i+gw/2;
+ let s=`<line x1="8" x2="${W-8}" y1="${sc(0)}" y2="${sc(0)}" stroke="var(--bd)"/>`;
+ if(model==="bar"){const bw=Math.min(24,gw/3);ms.forEach((x,i)=>{s+=`<rect x="${cx(i)-bw-1}" y="${sc(x.p)}" width="${bw}" height="${Math.max(1,sc(0)-sc(x.p))}" rx="2" fill="var(--inc)"><title>${lb(x.m)} pendapatan ${rp(x.p)}</title></rect><rect x="${cx(i)+1}" y="${sc(x.b)}" width="${bw}" height="${Math.max(1,sc(0)-sc(x.b))}" rx="2" fill="var(--exp)"><title>${lb(x.m)} pengeluaran ${rp(x.b)}</title></rect>`})}
+ else[["p","var(--inc)"],["b","var(--exp)"]].forEach(([k,c])=>{const pts=ms.map((x,i)=>cx(i)+","+sc(x[k])).join(" ");if(model==="area")s+=`<polygon points="${cx(0)},${sc(0)} ${pts} ${cx(ms.length-1)},${sc(0)}" fill="${c}" opacity=".18"/>`;s+=`<polyline points="${pts}" fill="none" stroke="${c}" stroke-width="2.5" stroke-linejoin="round"/>`;ms.forEach((x,i)=>s+=`<circle cx="${cx(i)}" cy="${sc(x[k])}" r="3" fill="${c}"/>`)});
+ ms.forEach((x,i)=>s+=`<text x="${cx(i)}" y="${H-8}" text-anchor="middle">${lb(x.m)}</text>`);
+ return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik pendapatan dan pengeluaran per bulan">${s}</svg>`}
+const PC=["#0b6e4f","#2a6fb0","#c2603a","#8a5fb5","#b58a1b","#4a8f9c","#9a9a9a"];
+function pie(it){const t=it.reduce((s,x)=>s+x[1],0);if(!t)return'<p class="empty">Belum ada pengeluaran pada periode ini.</p>';
+ if(it.length>6)it=[...it.slice(0,6),["Lainnya",it.slice(6).reduce((s,x)=>s+x[1],0)]];
+ let a=-Math.PI/2,s="";const R=70,r=40,P=(q,d)=>(100+d*Math.cos(q))+" "+(90+d*Math.sin(q));
+ it.forEach((x,i)=>{const f=x[1]/t,b=a+f*2*Math.PI;s+=f>=.999?`<circle cx="100" cy="90" r="${(R+r)/2}" fill="none" stroke="${PC[i]}" stroke-width="${R-r}"/>`:`<path d="M${P(a,R)} A${R} ${R} 0 ${f>.5?1:0} 1 ${P(b,R)} L${P(b,r)} A${r} ${r} 0 ${f>.5?1:0} 0 ${P(a,r)}Z" fill="${PC[i]}"/>`;a=b});
+ return`<div class="pie"><svg viewBox="0 0 200 180" role="img" aria-label="Komposisi pengeluaran">${s}</svg><ul>`+it.map((x,i)=>`<li><i style="background:${PC[i]}"></i>${esc(x[0])} <b>${Math.round(x[1]/t*100)}%</b></li>`).join("")+"</ul></div>"}
+/* tampilan */
+function fillM(id,all){const el=$(id),v=el.value,ms=[...new Set([...list().map(x=>x.d.slice(0,7)),today().slice(0,7)])].sort().reverse();
+ el.innerHTML=(all?'<option value="all">Semua periode</option>':"")+ms.map(m=>`<option value="${m}">${lb(m)}</option>`).join("");el.value=[...el.options].some(o=>o.value===v)?v:today().slice(0,7)}
+const trRow=x=>`<tr><td>${x.d}</td><td>${esc(x.k)}</td><td>${esc(x.c)}</td><td class="${x.t==="b"?"neg":""}">${x.t==="p"?"Pendapatan":"Pengeluaran"}</td><td class="n">${rp(x.j)}</td>`;
+const byDate=(a,b)=>b.d<a.d?-1:b.d>a.d?1:b.u-a.u;
+function render(){if($("app").hidden)return;$("nm").textContent=D.set.n||"Laporan Keuangan";
+ const cur=inP(list(),today().slice(0,7)),p=sum(cur,"p"),b=sum(cur,"b");
+ $("cards").innerHTML=[["trx","Pendapatan bulan ini",rp(p),""],["trx","Pengeluaran bulan ini",rp(b),""],["lap","Laba bersih bulan ini",rp(p-b),p-b<0?"neg":""],["trx","Transaksi bulan ini",cur.length,""]].map(c=>`<button class="sc card" data-go="${c[0]}"><small>${c[1]}</small><b class="${c[3]}">${c[2]}</b></button>`).join("");
+ $("h-ch").innerHTML=chart(series(6),"bar");
+ const last=list().sort(byDate).slice(0,5);$("h-last").innerHTML=last.length?last.map(x=>trRow(x)+"</tr>").join(""):'<tr><td class="empty">Belum ada transaksi. Tambahkan di tab Transaksi.</td></tr>';
+ const cats=[...new Set(["Penjualan","Jasa","Gaji","Sewa","Listrik","Bahan baku","Pemasaran","Lain-lain",...list().map(x=>x.c)])];$("cl").innerHTML=cats.map(c=>`<option value="${esc(c)}">`).join("");
+ fillM("tm",true);const q=$("tq").value.toLowerCase(),tl=inP(list(),$("tm").value).filter(x=>(x.k+" "+x.c).toLowerCase().includes(q)).sort(byDate).slice(0,200);
+ $("tl").innerHTML=tl.length?"<tr><th>Tanggal</th><th>Keterangan</th><th>Kategori</th><th>Tipe</th><th class='n'>Jumlah</th><th></th></tr>"+tl.map(x=>trRow(x)+`<td><button data-del="${x.id}" aria-label="Hapus transaksi">Hapus</button></td></tr>`).join(""):'<tr><td class="empty">Tidak ada transaksi pada filter ini.</td></tr>';
+ fillM("lp",true);const a=inP(list(),$("lp").value),P=sum(a,"p"),B=sum(a,"b");
+ $("lr").innerHTML='<tr class="sec"><td colspan="2">Pendapatan</td></tr>'+grp(a,"p").map(c=>`<tr><td>${esc(c[0])}</td><td class="n">${rp(c[1])}</td></tr>`).join("")+`<tr class="tt"><td>Total pendapatan</td><td class="n">${rp(P)}</td></tr><tr class="sec"><td colspan="2">Pengeluaran</td></tr>`+grp(a,"b").map(c=>`<tr><td>${esc(c[0])}</td><td class="n">${rp(c[1])}</td></tr>`).join("")+`<tr class="tt"><td>Total pengeluaran</td><td class="n">${rp(B)}</td></tr><tr class="bg"><td>Laba (rugi) bersih</td><td class="n ${P-B<0?"neg":""}">${rp(P-B)}</td></tr>`;
+ $("pie").innerHTML=pie(grp(a,"b"));$("l-ch").innerHTML=chart(series(12),$("lm").value);
+ if(document.activeElement!==$("sn"))$("sn").value=D.set.n||"";setSt(stt[0],stt[1])}
+function go(t){document.querySelectorAll("main>section").forEach(s=>s.hidden=s.id!=="t-"+t);document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.go===t));render();scrollTo(0,0)}
+function enter(){$("login").hidden=true;$("app").hidden=false;$("sc").value=cfg?JSON.stringify(cfg):"";go("home")}
+function showLogin(){const has=!!D.set.pin;$("lt").textContent=has?"Masukkan PIN untuk masuk.":"Buat PIN baru (4-8 angka).";$("pin2").hidden=has;$("login").hidden=false;$("app").hidden=true}
+function exportX(){const per=$("lp").value,a=inP(list(),per).sort(byDate),P=sum(a,"p"),B=sum(a,"b");
+ const rows=[["Tanggal","Keterangan","Kategori","Tipe","Jumlah"],...a.map(x=>[x.d,x.k,x.c,x.t==="p"?"Pendapatan":"Pengeluaran",x.j])];
+ const lr=[["Laba rugi sederhana",per==="all"?"Semua periode":lb(per)],["Pendapatan",""],...grp(a,"p"),["Total pendapatan",P],["Pengeluaran",""],...grp(a,"b"),["Total pengeluaran",B],["Laba bersih",P-B]];
+ if(window.XLSX){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(lr),"Laba Rugi");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"Transaksi");XLSX.writeFile(wb,"Laporan-Keuangan.xlsx");return}
+ const csv=[...lr,[],...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n"),l=document.createElement("a");l.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));l.download="Laporan-Keuangan.csv";l.click()}
+/* event */
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);const d=e.target.getAttribute("data-del");if(d&&confirm("Hapus transaksi ini?"))delTrx(d)});
+$("lf").onsubmit=async e=>{e.preventDefault();const p=$("pin").value.trim();$("le").textContent="";
+ if(!/^\d{4,8}$/.test(p))return $("le").textContent="PIN harus 4-8 angka.";
+ if(D.set.pin){if(await hash(p,D.set.pin.s)!==D.set.pin.h)return $("le").textContent="PIN salah."}
+ else{if(p!==$("pin2").value.trim())return $("le").textContent="Konfirmasi PIN tidak sama.";const s=uid();setSet({pin:{s,h:await hash(p,s)}})}
+ sessionStorage.setItem("ok","1");$("pin").value=$("pin2").value="";enter()};
+$("lcb").onclick=async()=>{const m=saveCfg($("lcfg").value);$("lce").textContent=m;if(!m){await Promise.race([sync(true),new Promise(r=>setTimeout(r,6000))]);if(stt[0]==="err")$("lce").textContent=stt[1];showLogin()}};
+$("out").onclick=()=>{sessionStorage.removeItem("ok");showLogin()};
+$("tf").onsubmit=e=>{e.preventDefault();addTrx({d:$("td").value,k:$("tk").value.trim(),c:$("tc").value.trim(),t:$("tt").value,j:Math.abs(Math.round(+$("tj").value))});$("tk").value=$("tj").value="";$("tk").focus()};
+["tm","lp","lm"].forEach(i=>$(i).onchange=render);$("tq").oninput=render;$("ex").onclick=exportX;
+$("sn").oninput=()=>setSet({n:$("sn").value});
+$("sv").onclick=async()=>{const m=saveCfg($("sc").value);$("se").textContent=m;if(!m){D.dirty={...D.dirty,set:1};Object.keys(D.trx).forEach(k=>D.dirty["trx/"+k]=1);await sync(true);if(stt[0]==="err")$("se").textContent=stt[1]}};
+$("sy").onclick=async()=>{$("se").textContent="";await sync(true);if(stt[0]==="err")$("se").textContent=stt[1]};
+$("pc").onclick=async()=>{const p=$("np").value.trim();if(!/^\d{4,8}$/.test(p))return $("pe").textContent="PIN harus 4-8 angka.";const s=uid();setSet({pin:{s,h:await hash(p,s)}});$("np").value="";$("pe").textContent="PIN diganti."};
+/* mulai */
+(async()=>{const s=await dbGet();if(s)D={trx:{},set:{},dirty:{},rev:0,...s};try{cfg=JSON.parse(localStorage.getItem("fbcfg")||"null")}catch(e){}
+ $("td").value=today();if(cfg)await Promise.race([sync(true),new Promise(r=>setTimeout(r,4000))]);
+ sessionStorage.getItem("ok")&&D.set.pin?enter():showLogin();setSt(cfg?stt[0]:"local",stt[1]);
+ setInterval(sync,12000);addEventListener("online",()=>sync())})();
+</script>
+</body>
+</html>
