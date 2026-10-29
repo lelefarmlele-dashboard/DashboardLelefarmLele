@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#087D87">
 <title>Laporan Keuangan</title>
+<link rel="icon" id="fav" href="data:,">
 <style>
 :root{--bg:#EEF5F6;--card:#fff;--ink:#0E2B33;--mut:#5A7480;--line:#DCE8EB;--pri:#087D87;--on:#fff;--inc:#12A06E;--exp:#E5603F;--soft:#E3F3F4;color-scheme:light}
 [data-theme=dark]{--bg:#0F1B20;--card:#17262C;--ink:#E7F1F3;--mut:#93AAB3;--line:#26393F;--pri:#27B8C4;--on:#04262A;--inc:#37C98F;--exp:#F08A6C;--soft:#1B3238;color-scheme:dark}
@@ -16,7 +17,7 @@ button{cursor:pointer}input:focus,select:focus,textarea:focus{border-color:var(-
 .btn{background:var(--pri);border-color:var(--pri);color:var(--on);font-weight:700;padding:12px 18px}
 .ib{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;padding:0;border-radius:50%;color:var(--mut)}
 header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0px));background:var(--card);border-bottom:1px solid var(--line)}
-header>div:first-child{flex:1;min-width:0}header .hr{display:flex;align-items:center;gap:6px}
+header .ht{flex:1;min-width:0}header .hr{display:flex;align-items:center;gap:6px}
 .pill{font-size:.78rem;font-weight:600;padding:4px 10px;border-radius:99px;background:var(--soft);color:var(--mut)}.pill.ok{color:var(--inc)}.pill.err{color:var(--exp)}
 main{max-width:960px;margin:0 auto;padding:0 16px 110px}
 nav{display:flex;gap:6px;max-width:960px;margin:12px auto 14px;padding:0 16px}
@@ -55,6 +56,11 @@ dialog{border:0;border-radius:22px;background:var(--card);color:var(--ink);paddi
 .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 6px}.kp button{font-size:1.4rem;font-weight:700;padding:14px 0;border-radius:16px}.kp .ok{background:var(--pri);color:var(--on);border-color:var(--pri)}
 dialog p{margin:4px 0;text-align:center}details{margin-top:12px;color:var(--mut);font-size:.9rem}textarea{width:100%;margin:8px 0}
 #toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--card);padding:10px 18px;border-radius:99px;opacity:0;pointer-events:none;transition:.25s;z-index:30}#toast.on{opacity:1;transform:translate(-50%,0)}
+.logo{width:40px;height:40px;border-radius:12px;object-fit:cover;flex:none}.logo.big{width:56px;height:56px;border-radius:16px}
+.logo.ini{display:inline-flex;align-items:center;justify-content:center;background:var(--pri);color:var(--on);font-weight:800;font-size:1.4rem}
+.greet{background:var(--soft);border-color:transparent}.gh{display:flex;align-items:center;gap:14px}.gt{font-size:1.25rem;font-weight:800;line-height:1.25}
+blockquote.q{margin:14px 0 6px;padding:2px 0 2px 14px;border-left:4px solid var(--pri);font-style:italic}
+.lnk{border:0;background:none;color:var(--pri);font-weight:700;padding:4px 0;border-radius:6px}.lgset{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 @media (max-width:720px){.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr;gap:8px}.stat{padding:12px 10px}.stat b{font-size:.95rem}
@@ -63,11 +69,12 @@ nav button{flex:1;flex-direction:column;gap:2px;border-radius:14px;padding:7px 2
 </style>
 </head>
 <body>
-<header><div><h1 id="nm">Laporan Keuangan</h1><small id="sb"></small></div>
+<header><img id="lg" class="logo" alt="Logo usaha" hidden><div class="ht"><h1 id="nm">Laporan Keuangan</h1><small id="sb"></small></div>
 <div class="hr"><span id="st" class="pill">Lokal</span><button class="ib" id="th" aria-label="Ganti tema terang atau gelap"></button><button class="ib" id="lk" aria-label="Kunci aplikasi" hidden></button></div></header>
 <nav id="nav" aria-label="Menu utama"></nav>
 <main>
 <section id="t-home">
+  <div class="card greet" id="greet"></div>
   <div class="hero" id="hero"></div>
   <div class="stats" id="stats"></div>
   <div class="card"><h2>Tren 6 bulan terakhir</h2><div id="h-ch"></div><div class="lg"><span><i style="background:var(--inc)"></i>Pendapatan</span><span><i style="background:var(--exp)"></i>Pengeluaran</span></div></div>
@@ -85,10 +92,10 @@ nav button{flex:1;flex-direction:column;gap:2px;border-radius:14px;padding:7px 2
   <div class="card"><h2>Tren 12 bulan</h2><div id="l-ch"></div><div class="lg"><span><i style="background:var(--inc)"></i>Pendapatan</span><span><i style="background:var(--exp)"></i>Pengeluaran</span></div></div>
 </section>
 <section id="t-set" hidden>
-  <div class="card"><h2>Usaha</h2><input id="sn" placeholder="Nama usaha" aria-label="Nama usaha" style="width:100%;max-width:380px"></div>
-  <div class="card"><h2>Sinkronisasi cloud (Firebase)</h2><p id="ss" style="margin-top:0;color:var(--mut)"></p>
-    <textarea id="sc" rows="5" placeholder="Tempel firebaseConfig dari Firebase Console" aria-label="Konfigurasi Firebase"></textarea>
-    <div class="bar"><button id="sv" class="btn">Simpan dan hubungkan</button><button id="sy">Sinkron sekarang</button></div><p id="se" class="neg"></p></div>
+  <div class="card"><h2>Usaha</h2><input id="sn" placeholder="Nama usaha" aria-label="Nama usaha" style="width:100%;max-width:380px">
+  <div class="lgset"><img id="lgp" class="logo big" alt="Pratinjau logo" hidden><div><input type="file" id="lgf" accept="image/*" hidden><button id="lgb" class="btn">Unggah logo</button> <button id="lgx">Hapus logo</button><p style="margin:6px 0 0"><small>Gambar PNG atau JPG, otomatis dikecilkan. Logo ikut tersinkron ke perangkat lain.</small></p></div></div></div>
+  <div class="card"><h2>Sinkronisasi cloud</h2><p id="ss" style="margin-top:0;color:var(--mut)"></p>
+    <div class="bar"><button id="sy" class="btn">Sinkron sekarang</button></div><p id="se" class="neg"></p></div>
   <div class="card"><h2>Ganti PIN</h2><div class="bar"><input id="np" type="password" inputmode="numeric" placeholder="PIN baru (4-8 angka)" aria-label="PIN baru"><button id="pc" class="btn">Simpan PIN</button></div><p id="pe" class="neg"></p></div>
 </section>
 </main>
@@ -98,7 +105,7 @@ nav button{flex:1;flex-direction:column;gap:2px;border-radius:14px;padding:7px 2
 <dialog id="pdlg"><div class="dt"><h2 id="pdt" style="margin:0"></h2><button class="ib" id="pdx" aria-label="Tutup">&times;</button></div>
   <p id="pds" style="color:var(--mut)"></p><div class="dots" id="pdots" aria-hidden="true"></div><p id="pde" class="neg" style="min-height:1.4em"></p>
   <div class="kp" id="kp"><button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button data-k="del" aria-label="Hapus angka">&#9003;</button><button data-k="0">0</button><button data-k="ok" class="ok" aria-label="Masuk">OK</button></div>
-  <details><summary>Perangkat baru? Hubungkan ke cloud</summary><textarea id="lcfg" rows="4" placeholder="Tempel firebaseConfig dari Firebase Console"></textarea><button type="button" id="lcb">Hubungkan</button><p id="lce" class="neg"></p></details>
+  
 </dialog>
 
 <dialog id="fd"><form id="tf" class="fld"><div class="dt"><h2 style="margin:0">Tambah transaksi</h2><button type="button" class="ib" id="fdx" aria-label="Tutup">&times;</button></div>
@@ -111,6 +118,7 @@ nav button{flex:1;flex-direction:column;gap:2px;border-radius:14px;padding:7px 2
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" async></script>
 <script>
+const EMBED={apiKey:"AIzaSyBo5GsrD4dr_K7BI58QGkC0bxeidmeyxEI",databaseURL:"https://laporankeuangan-36f86-default-rtdb.asia-southeast1.firebasedatabase.app"};
 const ROOT="keuangan",$=i=>document.getElementById(i),BLN=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 let D={trx:{},set:{},dirty:{},rev:0},cfg=null,busy=false,lastSync=0,stt=["local",""];
 const pad=n=>String(n).padStart(2,"0"),rp=n=>(n<0?"-":"")+"Rp "+Math.abs(Math.round(n)).toLocaleString("id-ID");
@@ -122,30 +130,40 @@ const idb=()=>new Promise((ok,no)=>{const r=indexedDB.open("keuangan-db",1);r.on
 async function dbGet(){try{const db=await idb();return await new Promise(ok=>{const q=db.transaction("kv").objectStore("kv").get("db");q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(null)})}catch(e){return null}}
 async function persist(){try{const db=await idb();db.transaction("kv","readwrite").objectStore("kv").put(D,"db")}catch(e){}}
 /* perubahan data (ditandai dirty lalu dikirim ke cloud) */
-function touch(p){D.dirty[p]=1;persist();clearTimeout(touch.t);touch.t=setTimeout(sync,400);render()}
+function touch(p){D.dirty[p]=(D.dirty[p]||0)+1;persist();clearTimeout(touch.t);touch.t=setTimeout(sync,400);render()}
 const addTrx=o=>{const id=uid();D.trx[id]={id,...o,u:Date.now()};touch("trx/"+id)},delTrx=id=>{D.trx[id]={id,del:1,u:Date.now()};touch("trx/"+id)},setSet=o=>{D.set={...D.set,...o,u:Date.now()};touch("set")};
 /* PIN */
 async function hash(p,s){const t=s+p;if(crypto.subtle){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("")}let h=5381;for(const c of t)h=((h<<5)+h+c.charCodeAt(0))>>>0;return"f"+h}
-/* sinkron Firebase (REST + login anonim) */
+/* sinkron Firebase (REST, login anonim, stream real-time + polling cadangan) */
+const ft=async(u,o)=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),15000);try{return await fetch(u,{...o,signal:c.signal})}catch(e){throw new Error(e.name==="AbortError"?"Koneksi lambat atau terputus":"Tidak ada koneksi internet")}finally{clearTimeout(t)}};
+const dburl=(p,t)=>cfg.databaseURL.replace(/\/$/,"")+"/"+ROOT+(p?"/"+p:"")+".json?auth="+t;
 async function tok(){let a=JSON.parse(localStorage.getItem("fbauth")||"null");const k=cfg.apiKey,save=x=>(localStorage.setItem("fbauth",JSON.stringify(x)),x.t);
  if(a&&a.exp>Date.now()+60000)return a.t;
- if(a&&a.r){const r=await(await fetch("https://securetoken.googleapis.com/v1/token?key="+k,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(a.r)})).json();if(r.id_token)return save({t:r.id_token,r:r.refresh_token,exp:Date.now()+ +r.expires_in*1000})}
- const r=await(await fetch("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+k,{method:"POST",headers:{"Content-Type":"application/json"},body:'{"returnSecureToken":true}'})).json();
+ if(a&&a.r){const r=await(await ft("https://securetoken.googleapis.com/v1/token?key="+k,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(a.r)})).json();if(r.id_token)return save({t:r.id_token,r:r.refresh_token,exp:Date.now()+ +r.expires_in*1000})}
+ const r=await(await ft("https://identitytoolkit.googleapis.com/v1/accounts:signUp?key="+k,{method:"POST",headers:{"Content-Type":"application/json"},body:'{"returnSecureToken":true}'})).json();
  if(!r.idToken)throw new Error((r.error&&r.error.message)||"Login anonim gagal. Aktifkan Anonymous di Authentication.");
  return save({t:r.idToken,r:r.refreshToken,exp:Date.now()+ +r.expiresIn*1000})}
-async function fb(m,p,b){const r=await fetch(cfg.databaseURL.replace(/\/$/,"")+"/"+ROOT+(p?"/"+p:"")+".json?auth="+await tok(),{method:m,body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("Server menolak (HTTP "+r.status+"). Cek Rules database.");return r.json()}
-function setSt(s,m){stt=[s,m||""];const e=$("st");e.className="pill "+(s==="ok"?"ok":s==="err"?"err":"");e.textContent={local:"Lokal saja",ok:"Tersinkron",sync:"Menyinkronkan...",off:"Offline",err:"Gagal sinkron"}[s];e.title=m||"";$("ss").textContent=cfg?(s==="ok"?"Tersinkron"+(lastSync?" pukul "+new Date(lastSync).toLocaleTimeString("id-ID"):""):stt[1]||e.textContent):"Belum terhubung. Data hanya tersimpan di perangkat ini."}
-async function sync(force){if(!cfg||busy)return;if(!navigator.onLine)return setSt("off");busy=true;setSt("sync");
- try{const ks=Object.keys(D.dirty);let mine=0;
-  if(ks.length){const o={};ks.forEach(k=>o[k]=k==="set"?D.set:D.trx[k.slice(4)]);await fb("PATCH","",o);D.dirty={};mine=Date.now();await fb("PATCH","_meta",{rev:mine})}
+async function fb(m,p,b){const r=await ft(dburl(p,await tok()),{method:m,body:b?JSON.stringify(b):undefined});if(!r.ok)throw new Error("Server menolak (HTTP "+r.status+"). Cek Rules database.");return r.json()}
+let live=false;
+function setSt(s,m){stt=[s,m||""];const e=$("st");e.className="pill "+(s==="ok"?"ok":s==="err"?"err":"");e.textContent={local:"Lokal saja",ok:"Tersinkron",sync:"Menyinkronkan...",off:"Offline",err:"Gagal sinkron"}[s];e.title=m||"";
+ $("ss").textContent=cfg?(s==="ok"?"Tersinkron pukul "+new Date(lastSync).toLocaleTimeString("id-ID")+(live?". Pembaruan langsung dari perangkat lain aktif.":". Memeriksa pembaruan tiap 10 detik."):s==="err"?"Gagal sinkron: "+m:e.textContent):"Belum terhubung. Data hanya tersimpan di perangkat ini."}
+let cur=null,again=false,againF=false,es=null,esT=null;
+function sync(force){if(!cfg)return Promise.resolve();if(cur){again=true;againF=againF||force===true;return cur}
+ cur=run(force===true).finally(()=>{cur=null;if(again){const f=againF;again=againF=false;setTimeout(()=>sync(f),150)}});return cur}
+async function run(force){if(!navigator.onLine){setSt("off");return}setSt("sync");
+ try{const snap={...D.dirty},ks=Object.keys(snap);let mine=0,n=0;
+  if(ks.length){const o={};ks.forEach(k=>o[k]=k==="set"?D.set:D.trx[k.slice(4)]);await fb("PATCH","",o);ks.forEach(k=>{if(D.dirty[k]===snap[k])delete D.dirty[k]});mine=Date.now();await fb("PATCH","_meta",{rev:mine})}
   const r=await fb("GET","_meta/rev");
-  if(force===true||(r!==D.rev&&r!==mine)){const all=await fb("GET","")||{};Object.values(all.trx||{}).forEach(x=>{const l=D.trx[x.id];if(!l||x.u>l.u)D.trx[x.id]=x});if(all.set&&(!D.set.u||all.set.u>D.set.u))D.set=all.set}
-  D.rev=r||mine||0;lastSync=Date.now();persist();setSt("ok");render()
- }catch(e){setSt("err",e.message)}finally{busy=false}}
+  if(force||(r!==D.rev&&r!==mine)){const all=await fb("GET","")||{};Object.values(all.trx||{}).forEach(x=>{const l=D.trx[x.id];if(!l||x.u>l.u){D.trx[x.id]=x;n++}});if(all.set&&(!D.set.u||all.set.u>D.set.u)){D.set=all.set;n++}}
+  D.rev=r||mine||0;lastSync=Date.now();persist();setSt("ok");render();if(n&&!force)toast("Data diperbarui dari perangkat lain")
+ }catch(e){setSt("err",e.message)}}
+function listen(){clearTimeout(esT);if(es){es.close();es=null}live=false;if(!cfg||!navigator.onLine||typeof EventSource==="undefined")return;
+ tok().then(t=>{es=new EventSource(dburl("_meta/rev",t));const go=()=>sync();es.addEventListener("put",go);es.addEventListener("patch",go);es.addEventListener("auth_revoked",listen);
+  es.onopen=()=>{live=true;setSt(stt[0],stt[1])};es.onerror=()=>{live=false;if(es){es.close();es=null}clearTimeout(esT);esT=setTimeout(listen,6000)};esT=setTimeout(listen,45*60000)}).catch(()=>{esT=setTimeout(listen,10000)})}
 function saveCfg(t){const g=k=>{const m=t.match(new RegExp(k+`["']?\\s*:\\s*["']([^"']+)["']`));return m&&m[1]};const apiKey=g("apiKey"),databaseURL=g("databaseURL");
  if(!apiKey)return"apiKey tidak ditemukan. Salin seluruh blok firebaseConfig.";
  if(!databaseURL)return"databaseURL tidak ditemukan. Buat Realtime Database dulu, lalu salin ulang konfigurasinya.";
- cfg={apiKey,databaseURL};localStorage.setItem("fbcfg",JSON.stringify(cfg));localStorage.removeItem("fbauth");return""}
+ cfg={apiKey,databaseURL};localStorage.setItem("fbcfg",JSON.stringify(cfg));localStorage.removeItem("fbauth");listen();return""}
 /* hitung */
 const inP=(a,p)=>p==="all"?a:a.filter(x=>x.d.slice(0,7)===p),sum=(a,t)=>a.filter(x=>x.t===t).reduce((s,x)=>s+x.j,0);
 function grp(a,t){const o={};a.filter(x=>x.t===t).forEach(x=>o[x.c]=(o[x.c]||0)+x.j);return Object.entries(o).sort((x,y)=>y[1]-x[1])}
@@ -158,6 +176,8 @@ function pie(it){const t=it.reduce((s,x)=>s+x[1],0);if(!t)return'<p class="empty
  it.forEach((x,i)=>{const f=x[1]/t,b=a+f*2*Math.PI;s+=f>=.999?`<circle cx="100" cy="90" r="${(R+r)/2}" fill="none" stroke="${PC[i]}" stroke-width="${R-r}"/>`:`<path d="M${P(a,R)} A${R} ${R} 0 ${f>.5?1:0} 1 ${P(b,R)} L${P(b,r)} A${r} ${r} 0 ${f>.5?1:0} 0 ${P(a,r)}Z" fill="${PC[i]}"/>`;a=b});
  return`<div class="pie"><svg viewBox="0 0 200 180" role="img" aria-label="Komposisi pengeluaran">${s}</svg><ul>`+it.map((x,i)=>`<li><i style="background:${PC[i]}"></i>${esc(x[0])} <b>${Math.round(x[1]/t*100)}%</b></li>`).join("")+"</ul></div>"}
 /* ===== tampilan baru ===== */
+const QUOTES=["Catat setiap rupiah. Yang tercatat bisa dikelola, yang tidak tercatat mudah hilang.", "Untung kecil yang konsisten mengalahkan untung besar yang sesekali.", "Pelanggan yang puas adalah iklan termurah.", "Pisahkan uang usaha dari uang pribadi, hitunganmu akan jauh lebih jernih.", "Bisnis tumbuh bukan karena rencana yang sempurna, tapi karena langkah yang dimulai hari ini.", "Kenali biaya terbesarmu, di sanalah peluang penghematan paling nyata.", "Arus kas adalah napas usaha. Jaga agar selalu lancar.", "Jangan hanya mengejar omzet, kejar juga margin.", "Disiplin mencatat hari ini membuat keputusan bulan depan lebih baik.", "Kualitas yang dijaga membuat pelanggan kembali tanpa diminta.", "Hemat bukan berarti pelit, tapi memastikan setiap pengeluaran punya manfaat.", "Evaluasi sebulan sekali, perbaiki satu hal pada satu waktu.", "Modal terbesar sebuah usaha adalah kepercayaan.", "Angka tidak berbohong. Lihat laporanmu, lalu ambil keputusan.", "Mulai kecil tidak apa-apa, asal terus tumbuh.", "Stok yang menumpuk adalah uang yang tertidur.", "Konsistensi mengalahkan semangat sesaat.", "Harga yang adil dan pelayanan yang ramah membuat usaha bertahan lama.", "Sisihkan sebagian laba untuk dana cadangan, usaha yang tangguh butuh bantalan.", "Sehari rapi mencatat menghemat sejam kebingungan di akhir bulan.", "Setiap masalah dalam usaha adalah informasi untuk menjadi lebih baik.", "Rezeki dijemput dengan kerja yang jujur dan telaten.", "Kerja keras membuka pintu, ketelitian menjaga agar tetap terbuka.", "Berani mencoba, tetapi tetap hitung risikonya."];let qo=0;
+const salam=()=>{const h=new Date().getHours();return h>=4&&h<11?"Selamat pagi":h>=11&&h<15?"Selamat siang":h>=15&&h<18?"Selamat sore":"Selamat malam"};
 const PROT=["trx","lap","set"],TABS=[["home","Beranda","home"],["trx","Transaksi","list"],["lap","Laporan","chart"],["set","Pengaturan","gear"]],TNAME={trx:"Transaksi",lap:"Laporan",set:"Pengaturan"};
 const ICON={home:'<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',chart:'<path d="M4 20V10m6 10V4m6 16v-7m5 7H3"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',up:'<path d="M12 19V5m-6 6 6-6 6 6"/>',down:'<path d="M12 5v14m-6-6 6 6 6-6"/>',trash:'<path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',plus:'<path d="M12 5v14M5 12h14"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/>'};
 const ic=(n,s=20)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
@@ -176,11 +196,13 @@ function chart(ms,model){const W=600,H=230,T=14,B=28,L=46,hi=Math.max(1,...ms.fl
  return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik pendapatan dan pengeluaran per bulan">${s}</svg>`}
 const row=(x,del)=>`<div class="tr"><span class="ti ${x.t}">${ic(x.t==="p"?"up":"down",18)}</span><div class="tm"><b>${esc(x.k)}</b><small>${esc(x.c)}, ${fmtD(x.d)}</small></div><b class="ta ${x.t}">${x.t==="p"?"+":"-"}${rp(x.j)}</b>${del?`<button class="ib" data-del="${x.id}" aria-label="Hapus transaksi">${ic("trash",18)}</button>`:""}</div>`;
 function render(){const dark=document.documentElement.dataset.theme==="dark";
- $("nm").textContent=D.set.n||"Laporan Keuangan";$("sb").textContent=new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+ $("nm").textContent=D.set.n||"Laporan Keuangan";const lg=/^data:image\//.test(D.set.logo||"")?D.set.logo:"";$("lg").hidden=!lg;if(lg)$("lg").src=lg;$("lgp").hidden=!lg;if(lg)$("lgp").src=lg;$("lgx").hidden=!lg;$("fav").href=lg||"data:,";$("sb").textContent=new Date().toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
  $("th").innerHTML=ic(dark?"sun":"moon");$("lk").innerHTML=ic("lock");$("lk").hidden=!unlocked;$("fab").hidden=tab!=="trx";$("fab").innerHTML=ic("plus",20)+"Tambah";
  $("nav").innerHTML=TABS.map(t=>`<button data-tab="${t[0]}" aria-selected="${tab===t[0]}">${ic(t[2],22)}<span>${t[1]}</span>${PROT.includes(t[0])&&!unlocked?`<em>${ic("lock",12)}</em>`:""}</button>`).join("");
  document.querySelectorAll("main>section").forEach(s=>s.hidden=s.id!=="t-"+tab);
  const cur=today().slice(0,7),a=inP(list(),cur),P=sum(a,"p"),B=sum(a,"b"),L=P-B,pc=P?Math.round(B/P*100):0;
+ const nmu=(D.set.n||"").trim(),sub=!a.length?"Yuk catat transaksi pertama bulan ini.":L>=0?"Bulan ini usahamu untung. Pertahankan ritmenya!":"Bulan ini pengeluaran melebihi pendapatan. Yuk cek laporannya.";
+ $("greet").innerHTML=`<div class="gh">${lg?`<img class="logo big" src="${lg}" alt="">`:`<span class="logo big ini" aria-hidden="true">${esc((nmu||"L").charAt(0).toUpperCase())}</span>`}<div><div class="gt">${salam()}${nmu?", "+esc(nmu):""}!</div><small>${sub}</small></div></div><blockquote class="q">${QUOTES[(Math.floor(Date.now()/864e5)+qo)%QUOTES.length]}</blockquote><button class="lnk" id="qn">Quote lainnya</button>`;
  $("hero").innerHTML=`<div class="hl">Laba bersih ${new Date().toLocaleDateString("id-ID",{month:"long"})}</div><div class="hn">${rp(L)}</div><div class="hbar"><i style="width:${Math.min(100,pc)}%"></i></div><div class="hs">${P?`Pengeluaran ${pc}% dari pendapatan`+(L<0?", bulan ini rugi":""):"Belum ada pendapatan bulan ini"}</div>`;
  $("stats").innerHTML=[["p","up","Pendapatan",rp(P)],["b","down","Pengeluaran",rp(B)],["n","list","Transaksi",a.length]].map(c=>`<button class="stat card" data-tab="trx" style="margin:0"><span class="ti ${c[0]}">${ic(c[1],18)}</span><small>${c[2]}</small><b>${c[3]}</b></button>`).join("");
  $("h-ch").innerHTML=chart(series(6),"bar");
@@ -193,7 +215,9 @@ function render(){const dark=document.documentElement.dataset.theme==="dark";
  $("pie").innerHTML=pie(grp(la,"b"));$("l-ch").innerHTML=chart(series(12),$("lm").value);
  if(document.activeElement!==$("sn"))$("sn").value=D.set.n||"";setSt(stt[0],stt[1])}
 function go(t){tab=t;render();scrollTo(0,0)}
-function gate(t){if(PROT.includes(t)&&!unlocked)openPin(t);else go(t)}
+async function gate(t){if(!PROT.includes(t)||unlocked){go(t);return}
+ if(cfg&&!D.set.pin){toast("Mengambil data dari cloud...");await Promise.race([sync(true),new Promise(r=>setTimeout(r,6000))]);if(!D.set.pin&&stt[0]!=="ok"){toast("Belum terhubung ke cloud. Periksa internet lalu coba lagi.");return}}
+ openPin(t)}
 const bump=()=>{clearTimeout(idle);if(unlocked)idle=setTimeout(lock,300000)};
 function lock(){unlocked=false;clearTimeout(idle);if(PROT.includes(tab))tab="home";render()}
 /* PIN */
@@ -210,7 +234,7 @@ function key(k){if(k==="ok")return pinSubmit();if(k==="del")buf=buf.slice(0,-1);
 $("kp").onclick=e=>{const k=e.target.closest("[data-k]");if(k)key(k.dataset.k)};
 $("pdlg").addEventListener("keydown",e=>{if(/^\d$/.test(e.key))key(e.key);else if(e.key==="Backspace")key("del");else if(e.key==="Enter"){e.preventDefault();pinSubmit()}});
 $("pdx").onclick=()=>$("pdlg").close();
-$("lcb").onclick=async()=>{const m=saveCfg($("lcfg").value);$("lce").textContent=m;if(!m){$("sc").value=JSON.stringify(cfg);await Promise.race([sync(true),new Promise(r=>setTimeout(r,6000))]);if(stt[0]==="err")$("lce").textContent=stt[1];openPin(target)}};
+
 /* form transaksi */
 function chips(){const f={};list().filter(x=>x.t===ftype).forEach(x=>f[x.c]=(f[x.c]||0)+1);const d=ftype==="p"?["Penjualan","Jasa","Lain-lain"]:["Bahan baku","Gaji","Sewa","Listrik","Pemasaran","Lain-lain"];
  $("fch").innerHTML=[...new Set([...Object.keys(f).sort((a,b)=>f[b]-f[a]),...d])].slice(0,8).map(c=>`<button type="button" data-cat="${esc(c)}">${esc(c)}</button>`).join("")}
@@ -226,18 +250,24 @@ function exportX(){const per=$("lp").value,a=inP(list(),per).sort(byDate),P=sum(
  const lr=[["Laba rugi sederhana",per==="all"?"Semua periode":lb(per)],["Pendapatan",""],...grp(a,"p"),["Total pendapatan",P],["Pengeluaran",""],...grp(a,"b"),["Total pengeluaran",B],["Laba bersih",P-B]];
  if(window.XLSX){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(lr),"Laba Rugi");XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"Transaksi");XLSX.writeFile(wb,"Laporan-Keuangan.xlsx");return}
  const csv=[...lr,[],...rows].map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(",")).join("\n"),l=document.createElement("a");l.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv"}));l.download="Laporan-Keuangan.csv";l.click()}
-document.addEventListener("click",e=>{bump();const t=e.target.closest("[data-tab]");if(t)gate(t.dataset.tab);const d=e.target.getAttribute("data-del")||(e.target.closest("[data-del]")||{}).dataset?.del;if(d&&confirm("Hapus transaksi ini?")){delTrx(d);toast("Transaksi dihapus")}});
+document.addEventListener("click",e=>{bump();if(e.target.closest("#qn")){qo++;render()}const t=e.target.closest("[data-tab]");if(t)gate(t.dataset.tab);const d=e.target.getAttribute("data-del")||(e.target.closest("[data-del]")||{}).dataset?.del;if(d&&confirm("Hapus transaksi ini?")){delTrx(d);toast("Transaksi dihapus")}});
 ["keydown","touchstart"].forEach(v=>addEventListener(v,bump));
 ["tm","lp","lm"].forEach(i=>$(i).onchange=render);$("tq").oninput=render;$("ex").onclick=exportX;$("lk").onclick=lock;
 $("th").onclick=()=>{const t=document.documentElement.dataset.theme==="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("tema",t)}catch(e){}render()};
 $("sn").oninput=()=>setSet({n:$("sn").value});
-$("sv").onclick=async()=>{const m=saveCfg($("sc").value);$("se").textContent=m;if(!m){D.dirty={...D.dirty,set:1};Object.keys(D.trx).forEach(k=>D.dirty["trx/"+k]=1);await sync(true);if(stt[0]==="err")$("se").textContent=stt[1]}};
 $("sy").onclick=async()=>{$("se").textContent="";await sync(true);if(stt[0]==="err")$("se").textContent=stt[1]};
 $("pc").onclick=async()=>{const p=$("np").value.trim();if(!/^\d{4,8}$/.test(p))return $("pe").textContent="PIN harus 4-8 angka.";const s=uid();setSet({pin:{s,h:await hash(p,s)}});$("np").value="";$("pe").textContent="PIN diganti."};
+/* logo */
+function loadLogo(f){if(!f||!/^image\//.test(f.type)){toast("Pilih file gambar (PNG atau JPG)");return}const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const m=Math.min(1,256/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.max(1,Math.round(im.width*m));c.height=Math.max(1,Math.round(im.height*m));const g=c.getContext("2d");g.drawImage(im,0,0,c.width,c.height);let u=c.toDataURL("image/png");
+ if(u.length>120000){g.globalCompositeOperation="destination-over";g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);u=c.toDataURL("image/jpeg",.85)}setSet({logo:u});toast("Logo disimpan")};im.onerror=()=>toast("Gambar tidak bisa dibaca");im.src=r.result};r.readAsDataURL(f)}
+$("lgb").onclick=()=>$("lgf").click();$("lgf").onchange=e=>{loadLogo(e.target.files[0]);e.target.value=""};$("lgx").onclick=()=>{setSet({logo:""});toast("Logo dihapus")};
 /* mulai */
-(async()=>{const s=await dbGet();if(s)D={trx:{},set:{},dirty:{},rev:0,...s};try{cfg=JSON.parse(localStorage.getItem("fbcfg")||"null")}catch(e){}
- let th="light";try{th=localStorage.getItem("tema")||"light"}catch(e){}document.documentElement.dataset.theme=th;$("sc").value=cfg?JSON.stringify(cfg):"";
- render();if(cfg)sync(true);setInterval(sync,12000);addEventListener("online",()=>sync())})();
+(async()=>{const s=await dbGet();if(s)D={trx:{},set:{},dirty:{},rev:0,...s};cfg=EMBED;try{localStorage.removeItem("fbauth_old")}catch(e){}
+ const fromLink=false;let th="light";try{th=localStorage.getItem("tema")||"light"}catch(e){}document.documentElement.dataset.theme=th;
+ render();if(fromLink)toast("Terhubung dari link. Memuat data...");if(cfg){sync(true);listen()}
+ setInterval(()=>{if(document.visibilityState==="visible")sync()},10000);
+ document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){sync();if(!es)listen()}});
+ addEventListener("focus",()=>sync());addEventListener("online",()=>{sync();listen()});addEventListener("offline",()=>setSt("off"))})();
 </script>
 </body>
 </html>
