@@ -41,10 +41,10 @@ nav button[aria-selected=true]{background:var(--pri);color:var(--on)}nav em{posi
 table{width:100%;border-collapse:collapse}td{padding:8px 4px;border-bottom:1px solid var(--line)}.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .sec td{font-weight:700;border:0;padding-top:14px;color:var(--pri)}.tt td{font-weight:700}.bg td{font-weight:800;font-size:1.1rem;border-top:2px solid var(--ink);border-bottom:0}.neg{color:var(--exp)}
 .empty{color:var(--mut);padding:14px 0;text-align:center}.sw{overflow-x:auto}
-svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:11px}
+#h-ch svg,#l-ch svg{width:100%;height:auto;display:block}svg text{fill:var(--mut);font-size:11px}
 .lg{display:flex;gap:14px;color:var(--mut);font-size:.85rem;margin-top:6px}.lg i,.pie li i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
-.pie{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.pie svg{width:170px}.pie ul{list-style:none;margin:0;padding:0}.pie li{margin:3px 0}
-.fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:15;display:flex;align-items:center;gap:8px;border-radius:99px;padding:14px 20px;box-shadow:0 6px 18px rgba(8,125,135,.35)}
+.pie{display:flex;gap:14px;align-items:center;flex-wrap:wrap}.pie svg{width:170px;height:auto;display:block}.pie ul{list-style:none;margin:0;padding:0}.pie li{margin:3px 0}
+.fab{position:fixed;right:18px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;align-items:center;gap:8px;border-radius:99px;padding:14px 20px;box-shadow:0 6px 18px rgba(8,125,135,.35)}
 dialog{border:0;border-radius:22px;background:var(--card);color:var(--ink);padding:20px;width:calc(100% - 28px);max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,.3)}dialog::backdrop{background:rgba(8,30,36,.55)}
 .dt{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}.seg button{font-weight:700;padding:12px}
@@ -60,7 +60,7 @@ dialog p{margin:4px 0;text-align:center}details{margin-top:12px;color:var(--mut)
 .logo.ini{display:inline-flex;align-items:center;justify-content:center;background:var(--pri);color:var(--on);font-weight:800;font-size:1.4rem}
 .greet{background:var(--soft);border-color:transparent}.gh{display:flex;align-items:center;gap:14px}.gt{font-size:1.25rem;font-weight:800;line-height:1.25}
 blockquote.q{margin:14px 0 6px;padding:2px 0 2px 14px;border-left:4px solid var(--pri);font-style:italic}
-.lnk{border:0;background:none;color:var(--pri);font-weight:700;padding:4px 0;border-radius:6px}.lgset{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
+.lnk{border:0;background:none;color:var(--pri);font-weight:700;padding:4px 0;border-radius:6px}.ver{text-align:center;color:var(--mut);font-size:.8rem;margin:6px 0 0}.lgset{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
 @media (max-width:720px){.two{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr 1fr;gap:8px}.stat{padding:12px 10px}.stat b{font-size:.95rem}
@@ -79,6 +79,7 @@ nav button{flex:1;flex-direction:column;gap:2px;border-radius:14px;padding:7px 2
   <div class="stats" id="stats"></div>
   <div class="card"><h2>Tren 6 bulan terakhir</h2><div id="h-ch"></div><div class="lg"><span><i style="background:var(--inc)"></i>Pendapatan</span><span><i style="background:var(--exp)"></i>Pengeluaran</span></div></div>
   <div class="card"><h2>Transaksi terakhir</h2><div id="h-last"></div></div>
+  <p class="ver">Versi 5, 2 November 2026</p>
 </section>
 <section id="t-trx" hidden>
   <div class="bar"><select id="tm" aria-label="Bulan"></select><input id="tq" type="search" placeholder="Cari transaksi" aria-label="Cari transaksi"></div>
@@ -180,7 +181,7 @@ const QUOTES=["Catat setiap rupiah. Yang tercatat bisa dikelola, yang tidak terc
 const salam=()=>{const h=new Date().getHours();return h>=4&&h<11?"Selamat pagi":h>=11&&h<15?"Selamat siang":h>=15&&h<18?"Selamat sore":"Selamat malam"};
 const PROT=["trx","lap","set"],TABS=[["home","Beranda","home"],["trx","Transaksi","list"],["lap","Laporan","chart"],["set","Pengaturan","gear"]],TNAME={trx:"Transaksi",lap:"Laporan",set:"Pengaturan"};
 const ICON={home:'<path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',chart:'<path d="M4 20V10m6 10V4m6 16v-7m5 7H3"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2 2m10 10 2 2M19 5l-2 2M7 17l-2 2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',up:'<path d="M12 19V5m-6 6 6-6 6 6"/>',down:'<path d="M12 5v14m-6-6 6 6 6-6"/>',trash:'<path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',plus:'<path d="M12 5v14M5 12h14"/>',moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M19 5l-1.5 1.5m-11 11L5 19"/>'};
-const ic=(n,s=20)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
+const ic=(n,s=20)=>`<svg viewBox="0 0 24 24" width="${s}" height="${s}" style="width:${s}px;height:${s}px;flex:none" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 let unlocked=false,tab="home",idle,buf="",step="verify",first="",target="trx",ftype="b";
 const fmtD=d=>+d.slice(8,10)+" "+BLN[+d.slice(5,7)-1]+" "+d.slice(0,4);
 const sh=v=>v>=1e6?(v/1e6).toFixed(1).replace(".",",").replace(",0","")+" jt":v>=1e3?Math.round(v/1e3)+" rb":String(Math.round(v));
