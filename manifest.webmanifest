@@ -1,0 +1,16 @@
+{
+  "name": "Laporan Keuangan",
+  "short_name": "Keuangan",
+  "description": "Laporan keuangan sederhana untuk usaha budidaya lele",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EEF5F6",
+  "theme_color": "#087D87",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
